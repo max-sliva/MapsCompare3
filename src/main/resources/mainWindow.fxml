@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="mainPane" prefHeight="545.0" prefWidth="807.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
+<BorderPane fx:id="mainPane" prefHeight="545.0" prefWidth="807.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -40,10 +40,17 @@
       </BorderPane>
    </center>
    <bottom>
-      <HBox alignment="CENTER" prefHeight="59.0" prefWidth="807.0" spacing="20.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="59.0" prefWidth="807.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
             <Button mnemonicParsing="false" onAction="#onAddImageClick" text="Add image" />
             <ComboBox fx:id="imagePicker" prefWidth="150.0" />
+            <ButtonBar disable="true" nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="200.0" style="-fx-border-color: blue;">
+              <buttons>
+                <Button alignment="CENTER" mnemonicParsing="false" text="Delete" />
+                  <Button mnemonicParsing="false" text="Up" />
+                  <Button mnemonicParsing="false" text="Down" />
+              </buttons>
+            </ButtonBar>
          </children>
          <opaqueInsets>
             <Insets />
