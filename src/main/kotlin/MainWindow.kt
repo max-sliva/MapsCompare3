@@ -1,5 +1,7 @@
 import javafx.event.ActionEvent
+import javafx.event.EventHandler
 import javafx.fxml.FXML
+import javafx.scene.control.ButtonBar
 import javafx.scene.control.ComboBox
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -12,6 +14,7 @@ class MainWindow {
     @FXML lateinit var mainPane: BorderPane
     @FXML lateinit var stackPaneWithImages: StackPane
     @FXML lateinit var imagePicker: ComboBox<String>
+    @FXML lateinit var buttonBox: ButtonBar
     val fileToImageViewMap: HashMap<String, ImageView> = HashMap()
     fun onAddImageClick(actionEvent: ActionEvent) {
         println("Add image")
@@ -23,8 +26,9 @@ class MainWindow {
             ExtensionFilter("All Files", "*.*")
         )
         val file = fileChooser.showOpenDialog(mainPane.scene.window)
-        println("file = ${file.path}")
+
         if (file!=null) {
+            println("file = ${file.path}")
             val imageView = ImageView()
 //            val image =
             imageView.image = Image("file:${file.path}")
@@ -35,5 +39,16 @@ class MainWindow {
             imagePicker.items.add(file.name)
             fileToImageViewMap[file.name] = imageView
         }
+        imagePicker.onAction = EventHandler {
+            val comboBox = it.source as ComboBox<String>
+            println("image pick = ${comboBox.value}")
+            buttonBox.isDisable = false
+        }
+    }
+
+    fun deleteCurImage(actionEvent: ActionEvent) {
+        stackPaneWithImages.children.remove(fileToImageViewMap[imagePicker.value])
+        imagePicker.items.remove(imagePicker.value)
+        if (imagePicker.items.isEmpty())  buttonBox.isDisable = true
     }
 }
