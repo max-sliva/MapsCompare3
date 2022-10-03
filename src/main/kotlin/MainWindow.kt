@@ -11,19 +11,24 @@ class MainWindow {
     @FXML lateinit var mainPane: BorderPane
     @FXML lateinit var stackPaneWithImages: StackPane
     @FXML lateinit var imagePicker: ComboBox<String>
+    val fileToImageViewMap: HashMap<String, ImageView> = HashMap()
     fun onAddImageClick(actionEvent: ActionEvent) {
         println("Add image")
         println(mainPane.scene.window)
         val fileChooser = FileChooser()
-        fileChooser.setTitle("Open Resource File")
+        fileChooser.title = "Open Resource File"
         val file = fileChooser.showOpenDialog(mainPane.scene.window)
         println("file = ${file.path}")
         if (file!=null) {
             val imageView = ImageView()
 //            val image =
             imageView.image = Image("file:${file.path}")
+            imageView.isPreserveRatio = true
+            imageView.fitWidthProperty().bind(mainPane.widthProperty())
+            imageView.fitHeightProperty().bind(mainPane.heightProperty())
             stackPaneWithImages.children.add(imageView)
             imagePicker.items.add(file.name)
+            fileToImageViewMap[file.name] = imageView
         }
     }
 }
