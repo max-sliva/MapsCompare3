@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="403.0" prefWidth="748.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
+<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="403.0" prefWidth="727.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -27,24 +27,17 @@
       </MenuBar>
    </top>
    <center>
-      <BorderPane maxHeight="1.7976931348623157E308" prefHeight="435.0" prefWidth="807.0">
-         <right>
-            <Slider fx:id="opacitySlider" disable="true" majorTickUnit="10.0" minorTickCount="2" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="100.0" BorderPane.alignment="CENTER" />
-         </right>
-         <center>
-            <StackPane fx:id="stackPaneWithImages" BorderPane.alignment="CENTER" />
-         </center>
-      </BorderPane>
+      <StackPane fx:id="stackPaneWithImages" />
    </center>
    <bottom>
       <VBox BorderPane.alignment="CENTER">
          <children>
             <Slider fx:id="buttomSlider" disable="true" />
-            <HBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="62.0" prefWidth="748.0" spacing="20.0">
+            <HBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" spacing="20.0" VBox.vgrow="NEVER">
                <children>
                   <Button mnemonicParsing="false" onAction="#onAddImageClick" text="Add image" />
-                  <ComboBox fx:id="imagePicker" prefWidth="150.0" />
-                  <ButtonBar fx:id="buttonBox" disable="true" nodeOrientation="LEFT_TO_RIGHT" prefHeight="29.0" prefWidth="267.0" style="-fx-border-color: blue;">
+                  <ComboBox fx:id="imagePicker" prefHeight="25.0" prefWidth="112.0" />
+                  <ButtonBar fx:id="buttonBox" disable="true" nodeOrientation="LEFT_TO_RIGHT" style="-fx-border-color: blue;">
                     <buttons>
                       <Button alignment="CENTER" mnemonicParsing="false" onAction="#deleteCurImage" text="Delete" />
                         <Button mnemonicParsing="false" onAction="#curImageLayerUp" text="Up" />
@@ -61,4 +54,7 @@
          </children>
       </VBox>
    </bottom>
+   <left>
+      <Slider fx:id="opacitySlider" disable="true" majorTickUnit="10.0" minorTickCount="2" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="100.0" BorderPane.alignment="CENTER" />
+   </left>
 </BorderPane>

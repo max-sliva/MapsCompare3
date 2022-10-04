@@ -8,7 +8,7 @@ import javafx.stage.WindowEvent
 
 class HelloApplication : Application() {
     override fun start(primaryStage: Stage) {
-        val fxmlLoader = FXMLLoader(this.javaClass.getResource("mainWindow.fxml"))
+        val fxmlLoader = FXMLLoader(this.javaClass.getResource("mainWindow2.fxml"))
 //        val fxmlLoader = FXMLLoader(HelloApplication::class.java.getResource("/my/hello-view.fxml"))
 //        val fxmlLoader = FXMLLoader(URL("file:$fxmlPath"))
         val scene = Scene(fxmlLoader.load())
