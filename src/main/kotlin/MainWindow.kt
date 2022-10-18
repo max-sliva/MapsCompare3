@@ -1,16 +1,23 @@
+import javafx.embed.swing.SwingFXUtils
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.geometry.Rectangle2D
+import javafx.scene.SnapshotParameters
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Slider
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.image.WritableImage
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
+import java.io.File
+import java.nio.file.Paths
+import javax.imageio.ImageIO
+
 
 class MainWindow {
     @FXML lateinit var mainPane: BorderPane //main window
@@ -25,9 +32,11 @@ class MainWindow {
         println("Add image")
         println(mainPane.scene.window)
         val fileChooser = FileChooser()
+        val currentPath: String = Paths.get(".").toAbsolutePath().normalize().toString()
+        fileChooser.initialDirectory = File(currentPath);
         fileChooser.title = "Open Image File"
         fileChooser.extensionFilters.addAll(
-            ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+            ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif", "*.tif"),
             ExtensionFilter("All Files", "*.*")
         )
         val file = fileChooser.showOpenDialog(mainPane.scene.window)
@@ -97,5 +106,13 @@ class MainWindow {
             imageView.scaleX-=0.2
             imageView.scaleY-=0.2
         }
+    }
+
+    fun makeGif(actionEvent: ActionEvent) {
+        val snapshot: WritableImage = stackPaneWithImages.snapshot(SnapshotParameters(), null)
+        val file = File("img.png")
+        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null),"png", file);
+//        val image = (stackPaneWithImages as ImageView).image
+//        image.
     }
 }
