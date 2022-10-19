@@ -17,6 +17,8 @@ import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
 import java.io.File
 import java.nio.file.Paths
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.imageio.ImageIO
 
 
@@ -111,6 +113,8 @@ class MainWindow {
 
     fun makeGif(actionEvent: ActionEvent) {
         val snapshot: WritableImage = stackPaneWithImages.snapshot(SnapshotParameters(), null)
+        val date = Calendar.DATE
+
         val file = File("img.png")
         ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null),"png", file);
 //        val image = (stackPaneWithImages as ImageView).image
@@ -119,6 +123,15 @@ class MainWindow {
 
     fun gifBtnClick(actionEvent: ActionEvent) {
         isMakingGIF = !isMakingGIF
+        if (gifBtn.text =="stop gif") writeGif()
         gifBtn.text = if (isMakingGIF) "stop gif" else "start gif"
+    }
+
+    private fun writeGif() {
+        println("gif created!")
+        val rightNow = Calendar.getInstance()
+        val date = rightNow.time as Date
+        val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm")
+        println("date = ${sdf.format(rightNow)}")
     }
 }
