@@ -4,6 +4,7 @@ import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.geometry.Rectangle2D
 import javafx.scene.SnapshotParameters
+import javafx.scene.control.Button
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Slider
@@ -26,6 +27,8 @@ class MainWindow {
     @FXML lateinit var buttonBox: ButtonBar
     @FXML lateinit var opacitySlider: Slider
     @FXML lateinit var buttomSlider: Slider
+    @FXML lateinit var gifBtn: Button
+    var isMakingGIF = false
     val fileToImageViewMap: HashMap<String, ImageView> = HashMap()
     fun onAddImageClick(actionEvent: ActionEvent) {
         opacitySlider.value = 100.0
@@ -48,8 +51,6 @@ class MainWindow {
             imageView.isPreserveRatio = true
 //            imageView.fitWidthProperty().bind(mainPane.widthProperty())
 //            imageView.fitHeightProperty().bind(mainPane.heightProperty())
-//            imageView.fitHeight = 100.0;
-//            imageView.setFitWidth(100.0);
             stackPaneWithImages.children.add(imageView)
             imagePicker.items.add(file.name)
             fileToImageViewMap[file.name] = imageView
@@ -114,5 +115,10 @@ class MainWindow {
         ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null),"png", file);
 //        val image = (stackPaneWithImages as ImageView).image
 //        image.
+    }
+
+    fun gifBtnClick(actionEvent: ActionEvent) {
+        isMakingGIF = !isMakingGIF
+        gifBtn.text = if (isMakingGIF) "stop gif" else "start gif"
     }
 }
