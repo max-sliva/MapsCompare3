@@ -131,7 +131,7 @@ class MainWindow {
         println("gif created!")
         val rightNow = Calendar.getInstance()
         val date = rightNow.time as Date
-        val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm")
-        println("date = ${sdf.format(rightNow)}")
+        val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm_ss")
+        println("date = ${sdf.format(date)}")
     }
 }
