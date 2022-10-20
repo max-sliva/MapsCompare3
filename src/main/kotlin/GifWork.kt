@@ -1,11 +1,26 @@
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.StreamingGifWriter
+import javafx.embed.swing.SwingFXUtils
+import javafx.scene.image.WritableImage
 import java.awt.image.BufferedImage
 import java.io.File
-import java.io.FileOutputStream
 import java.time.Duration
 
+
 class GifWork(private val pathToDir: String) {
+    fun makeGifFromArrayList(imagesArrayList: ArrayList<WritableImage>) {
+        val writer = StreamingGifWriter(Duration.ofMillis(100), false)
+        val gif = writer.prepareStream("${pathToDir}/gif.gif", BufferedImage.TYPE_INT_ARGB)
+
+        for (image in imagesArrayList) {
+            val image = SwingFXUtils.fromFXImage(image, null)
+            val img = ImmutableImage.fromAwt(image)
+            gif.writeFrame(img)
+        }
+        gif.close()
+
+    }
+
     fun makeGif(): String {
         val gifFile = String()
         val writer = StreamingGifWriter(Duration.ofMillis(100), false)

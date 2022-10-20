@@ -21,6 +21,7 @@ import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
+import kotlin.collections.ArrayList
 
 class MainWindow {
     @FXML lateinit var mainPane: BorderPane //main window
@@ -34,6 +35,7 @@ class MainWindow {
     val fileToImageViewMap: HashMap<String, ImageView> = HashMap()
     var dirPath: String = ""
     var imgCount = 0
+    val imagesArrayList = ArrayList<WritableImage>()
     fun onAddImageClick(actionEvent: ActionEvent) {
         opacitySlider.value = 100.0
         println("Add image")
@@ -51,7 +53,7 @@ class MainWindow {
             val imageView = ImageView()
             imageView.image = Image("file:${file.path}")
             imageView.isPreserveRatio = true
-            imageView.fitHeight = stackPaneWithImages.height
+//            imageView.fitHeight = stackPaneWithImages.height
 //            imageView.fitWidthProperty().bind(mainPane.widthProperty())
 //            imageView.fitHeightProperty().bind(mainPane.heightProperty())
             stackPaneWithImages.children.add(imageView)
@@ -73,16 +75,22 @@ class MainWindow {
 //            println("slider newValue = $newVal")
             fileToImageViewMap[imagePicker.value]!!.opacity = newVal.toInt() / 100.0
             if (isMakingGIF){
-                if (oldVal.toInt()==100) makeImage("png")
-                if (newVal.toInt()%2==0) makeImage("png")
+                if (oldVal.toInt()==100) addImageToArrayList()
+                if (newVal.toInt()%2==0) addImageToArrayList()
+//                if (oldVal.toInt()==100) makeImage("png")
+//                if (newVal.toInt()%2==0) makeImage("png")
             }
         }
 
-        buttomSlider.valueProperty().addListener { _, _, newVal ->  //делаем видимой часть картинки в зависимости от положения нижнего бегунка
+        buttomSlider.valueProperty().addListener { _, oldVal, newVal ->  //делаем видимой часть картинки в зависимости от положения нижнего бегунка
             val curX = (fileToImageViewMap[imagePicker.value]!!.image.width * newVal.toInt()) / 100
             fileToImageViewMap[imagePicker.value]!!.viewport = Rectangle2D(curX, 0.0, fileToImageViewMap[imagePicker.value]!!.image.width,
                                                                                                         fileToImageViewMap[imagePicker.value]!!.image.height)
             fileToImageViewMap[imagePicker.value]!!.translateX = curX * fileToImageViewMap[imagePicker.value]!!.scaleX //и сдвигаем картинку на нужное значение
+            if (isMakingGIF) {
+                if (oldVal.toInt() == 100) addImageToArrayList()
+                if (newVal.toInt() % 2 == 0) addImageToArrayList()
+            }
         }
     }
 
@@ -125,12 +133,18 @@ class MainWindow {
 //        image.
     }
 
+    fun addImageToArrayList(){//todo почитать про SnapshotParameters, чтобы сжать изображение
+        val snapshot: WritableImage = stackPaneWithImages.snapshot(SnapshotParameters(), null)
+        imagesArrayList.add(snapshot)
+    }
+
     fun gifBtnClick(actionEvent: ActionEvent) {
         isMakingGIF = !isMakingGIF
         if (gifBtn.text =="start gif") beginGifWork()
         if (gifBtn.text =="stop gif") {
             val gifWork = GifWork(dirPath)
-            gifWork.makeGif()
+//            gifWork.makeGif()
+            gifWork.makeGifFromArrayList(imagesArrayList)
         }
         gifBtn.text = if (isMakingGIF) "stop gif" else "start gif"
     }
@@ -138,6 +152,7 @@ class MainWindow {
     private fun beginGifWork() {
         println("gif work has begun!")
         imgCount = 0
+        imagesArrayList.clear()
         val rightNow = Calendar.getInstance()
         val date = rightNow.time as Date
         val sdf = SimpleDateFormat("dd_MM_yy HH_mm_ss")
