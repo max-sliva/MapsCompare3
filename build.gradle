@@ -10,8 +10,6 @@ repositories {
     mavenCentral()
 }
 
-
-
 compileKotlin {
     kotlinOptions.jvmTarget = '1.8'
 }
@@ -22,4 +20,7 @@ compileTestKotlin {
 
 application {
     mainClassName = 'MainKt'
+}
+dependencies {
+    implementation('com.sksamuel.scrimage:scrimage-core:4.0.32')
 }
