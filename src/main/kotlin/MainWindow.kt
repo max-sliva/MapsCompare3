@@ -16,6 +16,7 @@ import javafx.scene.layout.StackPane
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,6 +33,8 @@ class MainWindow {
     @FXML lateinit var gifBtn: Button
     var isMakingGIF = false
     val fileToImageViewMap: HashMap<String, ImageView> = HashMap()
+    var dirPath: String = ""
+    var imgCount = 0
     fun onAddImageClick(actionEvent: ActionEvent) {
         opacitySlider.value = 100.0
         println("Add image")
@@ -70,6 +73,9 @@ class MainWindow {
         opacitySlider.valueProperty().addListener{ _, _, newVal ->
             println("slider value = $newVal")
             fileToImageViewMap[imagePicker.value]!!.opacity = newVal.toInt() / 100.0
+            if (isMakingGIF){
+                if (newVal.toInt()%10==0) makeImage("png")
+            }
         }
 
         buttomSlider.valueProperty().addListener { _, _, newVal ->
@@ -111,27 +117,37 @@ class MainWindow {
         }
     }
 
-    fun makeGif(actionEvent: ActionEvent) {
+    fun makeImage(type: String) {
         val snapshot: WritableImage = stackPaneWithImages.snapshot(SnapshotParameters(), null)
-        val date = Calendar.DATE
-
-        val file = File("img.png")
-        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null),"png", file);
+        val file = File("$dirPath/img$imgCount.$type")
+        imgCount++
+        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null),"$type", file)
 //        val image = (stackPaneWithImages as ImageView).image
 //        image.
     }
 
-    fun gifBtnClick(actionEvent: ActionEvent) {
+    fun gifBtnClick(actionEvent: ActionEvent) {  //todo make folder when pressed start gif
         isMakingGIF = !isMakingGIF
-        if (gifBtn.text =="stop gif") writeGif()
+        if (gifBtn.text =="stop gif") beginGifWork()
         gifBtn.text = if (isMakingGIF) "stop gif" else "start gif"
     }
 
-    private fun writeGif() {
-        println("gif created!")
+    private fun beginGifWork() {
+        println("gif work has begun!")
+        imgCount = 0
         val rightNow = Calendar.getInstance()
         val date = rightNow.time as Date
-        val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm_ss")
+        val sdf = SimpleDateFormat("dd_MM_yy HH_mm_ss")
+        dirPath = sdf.format(date)
+//        val currentPath: String = Paths.get(".").toAbsolutePath().normalize().toString()
         println("date = ${sdf.format(date)}")
+        Files.createDirectories(Paths.get("$dirPath"))
+    }
+
+    fun oneGif(actionEvent: ActionEvent) {
+        if (isMakingGIF){
+           makeImage("png")
+        }
+
     }
 }
