@@ -74,7 +74,7 @@ class MainWindow {
             fileToImageViewMap[imagePicker.value]!!.opacity = newVal.toInt() / 100.0
             if (isMakingGIF){
                 if (oldVal.toInt()==100) makeImage("png")
-                if (newVal.toInt()%5==0) makeImage("png")
+                if (newVal.toInt()%2==0) makeImage("png")
             }
         }
 
@@ -116,7 +116,7 @@ class MainWindow {
         }
     }
 
-    fun makeImage(type: String) { //make thread for this work
+    fun makeImage(type: String) { //todo make thread for this work
         val snapshot: WritableImage = stackPaneWithImages.snapshot(SnapshotParameters(), null)
         val file = File("$dirPath/img$imgCount.$type")
         imgCount++
