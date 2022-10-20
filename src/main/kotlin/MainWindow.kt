@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
 
-
 class MainWindow {
     @FXML lateinit var mainPane: BorderPane //main window
     @FXML lateinit var stackPaneWithImages: StackPane
@@ -39,21 +38,20 @@ class MainWindow {
         opacitySlider.value = 100.0
         println("Add image")
         println(mainPane.scene.window)
-        val fileChooser = FileChooser()
-        val currentPath: String = Paths.get(".").toAbsolutePath().normalize().toString()
-        fileChooser.initialDirectory = File(currentPath);
-        fileChooser.title = "Open Image File"
-        fileChooser.extensionFilters.addAll(
-            ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif", "*.tif"),
-            ExtensionFilter("All Files", "*.*")
-        )
+        val fileChooser = FileChooser().apply{
+            title = "Open Image File"
+            val currentPath: String = Paths.get(".").toAbsolutePath().normalize().toString()
+            initialDirectory = File(currentPath)
+            extensionFilters.addAll(ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+                                    ExtensionFilter("All Files", "*.*"))
+        }
         val file = fileChooser.showOpenDialog(mainPane.scene.window)
-
         if (file!=null) {
             println("file = ${file.path}")
             val imageView = ImageView()
             imageView.image = Image("file:${file.path}")
             imageView.isPreserveRatio = true
+            imageView.fitHeight = stackPaneWithImages.height
 //            imageView.fitWidthProperty().bind(mainPane.widthProperty())
 //            imageView.fitHeightProperty().bind(mainPane.heightProperty())
             stackPaneWithImages.children.add(imageView)
@@ -70,20 +68,21 @@ class MainWindow {
             opacitySlider.value = fileToImageViewMap[imagePicker.value]!!.opacity*100
         }
 
-        opacitySlider.valueProperty().addListener{ _, _, newVal ->
-            println("slider value = $newVal")
+        opacitySlider.valueProperty().addListener{ _, oldVal, newVal ->
+//            println("slider oldValue = $oldVal")
+//            println("slider newValue = $newVal")
             fileToImageViewMap[imagePicker.value]!!.opacity = newVal.toInt() / 100.0
             if (isMakingGIF){
-                if (newVal.toInt()%10==0) makeImage("png")
+                if (oldVal.toInt()==100) makeImage("png")
+                if (newVal.toInt()%5==0) makeImage("png")
             }
         }
 
-        buttomSlider.valueProperty().addListener { _, _, newVal ->
+        buttomSlider.valueProperty().addListener { _, _, newVal ->  //делаем видимой часть картинки в зависимости от положения нижнего бегунка
             val curX = (fileToImageViewMap[imagePicker.value]!!.image.width * newVal.toInt()) / 100
             fileToImageViewMap[imagePicker.value]!!.viewport = Rectangle2D(curX, 0.0, fileToImageViewMap[imagePicker.value]!!.image.width,
                                                                                                         fileToImageViewMap[imagePicker.value]!!.image.height)
-            fileToImageViewMap[imagePicker.value]!!.translateX = curX * fileToImageViewMap[imagePicker.value]!!.scaleX
-
+            fileToImageViewMap[imagePicker.value]!!.translateX = curX * fileToImageViewMap[imagePicker.value]!!.scaleX //и сдвигаем картинку на нужное значение
         }
     }
 
@@ -117,7 +116,7 @@ class MainWindow {
         }
     }
 
-    fun makeImage(type: String) {
+    fun makeImage(type: String) { //make thread for this work
         val snapshot: WritableImage = stackPaneWithImages.snapshot(SnapshotParameters(), null)
         val file = File("$dirPath/img$imgCount.$type")
         imgCount++
@@ -126,9 +125,13 @@ class MainWindow {
 //        image.
     }
 
-    fun gifBtnClick(actionEvent: ActionEvent) {  //todo make folder when pressed start gif
+    fun gifBtnClick(actionEvent: ActionEvent) {
         isMakingGIF = !isMakingGIF
-        if (gifBtn.text =="stop gif") beginGifWork()
+        if (gifBtn.text =="start gif") beginGifWork()
+        if (gifBtn.text =="stop gif") {
+            val gifWork = GifWork(dirPath)
+            gifWork.makeGif()
+        }
         gifBtn.text = if (isMakingGIF) "stop gif" else "start gif"
     }
 
