@@ -1,6 +1,7 @@
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.StreamingGifWriter
 import javafx.embed.swing.SwingFXUtils
+import javafx.scene.control.ProgressBar
 import javafx.scene.image.WritableImage
 import java.awt.image.BufferedImage
 import java.io.File
@@ -11,6 +12,22 @@ class GifWork(private val pathToDir: String) {
     fun makeGifFromArrayList(imagesArrayList: ArrayList<WritableImage>) {
         val writer = StreamingGifWriter(Duration.ofMillis(100), false)
         val gif = writer.prepareStream("${pathToDir}/gif.gif", BufferedImage.TYPE_INT_ARGB)
+
+//        val task: Task<Int> = object : Task<Int?>() {
+//            @Throws(Exception::class)
+//            protected fun call(): Int? {
+//                var iterations: Int
+//                iterations = 0
+//                while (iterations < 10000000) {
+//                    updateProgress(iterations, 10000000)
+//                    iterations++
+//                }
+//                return iterations
+//            }
+//        }
+//        val bar = ProgressBar()
+//        bar.progressProperty().bind(task.progressProperty())
+//        Thread(task).start()
 
         for (image in imagesArrayList) {
             val image = SwingFXUtils.fromFXImage(image, null)

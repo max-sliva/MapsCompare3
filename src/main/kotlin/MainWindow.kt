@@ -53,12 +53,16 @@ class MainWindow {
             val imageView = ImageView()
             imageView.image = Image("file:${file.path}")
             imageView.isPreserveRatio = true
+            imageView.scaleX-=0.2
+            imageView.scaleY-=0.2
+
 //            imageView.fitHeight = stackPaneWithImages.height
 //            imageView.fitWidthProperty().bind(mainPane.widthProperty())
 //            imageView.fitHeightProperty().bind(mainPane.heightProperty())
             stackPaneWithImages.children.add(imageView)
             imagePicker.items.add(file.name)
             fileToImageViewMap[file.name] = imageView
+
         }
         imagePicker.onAction = EventHandler {
             val comboBox = it.source as ComboBox<String>
@@ -76,7 +80,7 @@ class MainWindow {
             fileToImageViewMap[imagePicker.value]!!.opacity = newVal.toInt() / 100.0
             if (isMakingGIF){
                 if (oldVal.toInt()==100) addImageToArrayList()
-                if (newVal.toInt()%2==0) addImageToArrayList()
+                if (newVal.toInt()%5==0) addImageToArrayList()
 //                if (oldVal.toInt()==100) makeImage("png")
 //                if (newVal.toInt()%2==0) makeImage("png")
             }
@@ -89,8 +93,9 @@ class MainWindow {
             fileToImageViewMap[imagePicker.value]!!.translateX = curX * fileToImageViewMap[imagePicker.value]!!.scaleX //и сдвигаем картинку на нужное значение
             if (isMakingGIF) {
                 if (oldVal.toInt() == 100) addImageToArrayList()
-                if (newVal.toInt() % 2 == 0) addImageToArrayList()
+                if (newVal.toInt() % 5 == 0) addImageToArrayList()
             }
+//            println("butSlider = $newVal")
         }
     }
 
