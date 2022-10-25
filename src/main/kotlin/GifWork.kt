@@ -1,8 +1,17 @@
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.StreamingGifWriter
+import javafx.application.Platform
+import javafx.concurrent.Task
+import javafx.concurrent.WorkerStateEvent
 import javafx.embed.swing.SwingFXUtils
+import javafx.event.EventHandler
+import javafx.scene.Scene
+import javafx.scene.control.Label
 import javafx.scene.control.ProgressBar
 import javafx.scene.image.WritableImage
+import javafx.scene.layout.BorderPane
+import javafx.stage.Modality
+import javafx.stage.Stage
 import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
@@ -12,29 +21,49 @@ class GifWork(private val pathToDir: String) {
     fun makeGifFromArrayList(imagesArrayList: ArrayList<WritableImage>) {
         val writer = StreamingGifWriter(Duration.ofMillis(100), false)
         val gif = writer.prepareStream("${pathToDir}/gif.gif", BufferedImage.TYPE_INT_ARGB)
-
-//        val task: Task<Int> = object : Task<Int?>() {
-//            @Throws(Exception::class)
-//            protected fun call(): Int? {
-//                var iterations: Int
-//                iterations = 0
-//                while (iterations < 10000000) {
-//                    updateProgress(iterations, 10000000)
-//                    iterations++
-//                }
-//                return iterations
-//            }
-//        }
-//        val bar = ProgressBar()
-//        bar.progressProperty().bind(task.progressProperty())
-//        Thread(task).start()
-
-        for (image in imagesArrayList) {
-            val image = SwingFXUtils.fromFXImage(image, null)
-            val img = ImmutableImage.fromAwt(image)
-            gif.writeFrame(img)
+        val dialog = Stage()
+       // dialog.initOwner(parentStage);
+        dialog.initModality(Modality.APPLICATION_MODAL)
+        val bar = ProgressBar(0.0)
+        val pane = BorderPane()
+        pane.center = bar
+        pane.bottom = Label("")
+        bar.progress = 0.0
+        dialog.scene = Scene(pane, 250.0, 150.0)
+        val task: Task<Int?> = object : Task<Int?>() {
+            @Throws(Exception::class)
+            override fun call(): Int {
+                val iterations: Int = imagesArrayList.size
+                var part = 100 / iterations
+                println("progress = ${bar.progress}")
+                for (image in imagesArrayList) {
+                    val image = SwingFXUtils.fromFXImage(image, null)
+                    val img = ImmutableImage.fromAwt(image)
+                    gif.writeFrame(img)
+                    updateProgress(part.toLong(), iterations.toLong())
+                    part+=part
+//                    Platform.runLater {
+//                        bar.progress = bar.progress + part
+//                    }
+//                    println("progress = ${bar.progress}")
+                }
+                gif.close()
+                imagesArrayList.clear()
+//                writer.
+                println("progress = All")
+                return iterations
+            }
         }
-        gif.close()
+       // bar.progressProperty().bind(task.progressProperty())
+        dialog.show()
+        task.onSucceeded = EventHandler {
+            println("Done!")
+            pane.bottom = Label("Done making GIF. Please, close the window")
+            dialog.close()
+        }
+        bar.progressProperty().bind(task.progressProperty())
+        Thread(task).start()
+//        gif.close()
 
     }
 
@@ -58,7 +87,7 @@ class GifWork(private val pathToDir: String) {
         return gifFile
     }
 
-    private fun getAllImageFilesFromFolder(directory: File): List<File>? {
+    private fun getAllImageFilesFromFolder(directory: File): List<File> {
         //Get all the files from the folder
         val allFiles = directory.listFiles()
         if (allFiles == null || allFiles.size == 0) {

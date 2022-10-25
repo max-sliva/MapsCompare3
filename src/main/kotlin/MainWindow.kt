@@ -53,8 +53,8 @@ class MainWindow {
             val imageView = ImageView()
             imageView.image = Image("file:${file.path}")
             imageView.isPreserveRatio = true
-            imageView.scaleX-=0.2
-            imageView.scaleY-=0.2
+            imageView.scaleX-=0.6
+            imageView.scaleY-=0.6
 
 //            imageView.fitHeight = stackPaneWithImages.height
 //            imageView.fitWidthProperty().bind(mainPane.widthProperty())
