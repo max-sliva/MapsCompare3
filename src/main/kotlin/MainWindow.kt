@@ -171,7 +171,7 @@ class MainWindow {
 //        if (isMakingGIF){
 //           makeImage("png")
 //        }
-//todo make call for shareX
-
+//todo make call https://forum.cockos.com/forumdisplay.php?f=44
+        Runtime.getRuntime().exec("ShareX/ShareX.exe")
     }
 }
