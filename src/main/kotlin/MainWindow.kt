@@ -168,9 +168,9 @@ class MainWindow {
     }
 
     fun oneGif(actionEvent: ActionEvent) {
-        if (isMakingGIF){
-           makeImage("png")
-        }
-
+//        if (isMakingGIF){
+//           makeImage("png")
+//        }
+//todo make call for shareX
     }
 }
