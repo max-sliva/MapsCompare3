@@ -172,5 +172,6 @@ class MainWindow {
 //           makeImage("png")
 //        }
 //todo make call for shareX
+
     }
 }
