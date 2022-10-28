@@ -2,12 +2,14 @@ import javafx.embed.swing.SwingFXUtils
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
+import javafx.fxml.Initializable
 import javafx.geometry.Rectangle2D
 import javafx.scene.SnapshotParameters
 import javafx.scene.control.Button
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Slider
+import javafx.scene.control.TextField
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.image.WritableImage
@@ -16,6 +18,7 @@ import javafx.scene.layout.StackPane
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
 import java.io.File
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
@@ -23,7 +26,7 @@ import java.util.*
 import javax.imageio.ImageIO
 import kotlin.collections.ArrayList
 
-class MainWindow {
+class MainWindow: Initializable {
     @FXML lateinit var mainPane: BorderPane //main window
     @FXML lateinit var stackPaneWithImages: StackPane
     @FXML lateinit var imagePicker: ComboBox<String>
@@ -31,11 +34,14 @@ class MainWindow {
     @FXML lateinit var opacitySlider: Slider
     @FXML lateinit var buttomSlider: Slider
     @FXML lateinit var gifBtn: Button
+    @FXML lateinit var msBtwFrms: TextField
+    @FXML lateinit var comboFrameEvery: ComboBox<Int>
     var isMakingGIF = false
     val fileToImageViewMap: HashMap<String, ImageView> = HashMap()
     var dirPath: String = ""
     var imgCount = 0
     val imagesArrayList = ArrayList<WritableImage>()
+
     fun onAddImageClick(actionEvent: ActionEvent) {
         opacitySlider.value = 100.0
         println("Add image")
@@ -173,5 +179,10 @@ class MainWindow {
 //        }
 //todo make call https://forum.cockos.com/forumdisplay.php?f=44
         Runtime.getRuntime().exec("ShareX/ShareX.exe")
+    }
+
+    override fun initialize(location: URL?, resources: ResourceBundle?) {
+        println("Program started")
+        comboFrameEvery.items.addAll(1,2,3,4,5)
     }
 }
