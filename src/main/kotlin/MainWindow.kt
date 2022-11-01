@@ -5,16 +5,13 @@ import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.geometry.Rectangle2D
 import javafx.scene.SnapshotParameters
-import javafx.scene.control.Button
-import javafx.scene.control.ButtonBar
-import javafx.scene.control.ComboBox
-import javafx.scene.control.Slider
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
+import javafx.scene.transform.Transform
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
 import java.io.File
@@ -24,7 +21,6 @@ import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
-import kotlin.collections.ArrayList
 
 class MainWindow: Initializable {
     @FXML lateinit var mainPane: BorderPane //main window
@@ -146,6 +142,8 @@ class MainWindow: Initializable {
     }
 
     fun addImageToArrayList(){//todo почитать про SnapshotParameters, чтобы сжать изображение
+//        val sp = SnapshotParameters()
+//        sp.transform = Transform.scale(5.0, 5.0)
         val snapshot: WritableImage = stackPaneWithImages.snapshot(SnapshotParameters(), null)
         imagesArrayList.add(snapshot)
     }
