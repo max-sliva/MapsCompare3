@@ -41,6 +41,7 @@ class MainWindow: Initializable {
     var dirPath: String = ""
     var imgCount = 0
     val imagesArrayList = ArrayList<WritableImage>()
+    var frameEvery = 5
 
     fun onAddImageClick(actionEvent: ActionEvent) {
         opacitySlider.value = 100.0
@@ -86,7 +87,7 @@ class MainWindow: Initializable {
             fileToImageViewMap[imagePicker.value]!!.opacity = newVal.toInt() / 100.0
             if (isMakingGIF){
                 if (oldVal.toInt()==100) addImageToArrayList()
-                if (newVal.toInt()%5==0) addImageToArrayList()
+                if (newVal.toInt() % comboFrameEvery.value ==0) addImageToArrayList()
 //                if (oldVal.toInt()==100) makeImage("png")
 //                if (newVal.toInt()%2==0) makeImage("png")
             }
@@ -99,7 +100,7 @@ class MainWindow: Initializable {
             fileToImageViewMap[imagePicker.value]!!.translateX = curX * fileToImageViewMap[imagePicker.value]!!.scaleX //и сдвигаем картинку на нужное значение
             if (isMakingGIF) {
                 if (oldVal.toInt() == 100) addImageToArrayList()
-                if (newVal.toInt() % 5 == 0) addImageToArrayList()
+                if (newVal.toInt() % comboFrameEvery.value == 0) addImageToArrayList()
             }
 //            println("butSlider = $newVal")
         }
@@ -155,7 +156,7 @@ class MainWindow: Initializable {
         if (gifBtn.text =="stop gif") {
             val gifWork = GifWork(dirPath)
 //            gifWork.makeGif()
-            gifWork.makeGifFromArrayList(imagesArrayList)
+            gifWork.makeGifFromArrayList(imagesArrayList, msBtwFrms.text.toInt())
         }
         gifBtn.text = if (isMakingGIF) "stop gif" else "start gif"
     }
@@ -184,5 +185,6 @@ class MainWindow: Initializable {
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         println("Program started")
         comboFrameEvery.items.addAll(1,2,3,4,5)
+        comboFrameEvery.value = 5
     }
 }

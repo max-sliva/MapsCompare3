@@ -1,8 +1,6 @@
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.StreamingGifWriter
-import javafx.application.Platform
 import javafx.concurrent.Task
-import javafx.concurrent.WorkerStateEvent
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.scene.Scene
@@ -18,10 +16,11 @@ import java.time.Duration
 
 
 class GifWork(private val pathToDir: String) {
-    fun makeGifFromArrayList(imagesArrayList: ArrayList<WritableImage>) {
-        val writer = StreamingGifWriter(Duration.ofMillis(100), false)
+    fun makeGifFromArrayList(imagesArrayList: ArrayList<WritableImage>, millis: Int) {
+        val writer = StreamingGifWriter(Duration.ofMillis(millis.toLong()), false)
         val gif = writer.prepareStream("${pathToDir}/gif.gif", BufferedImage.TYPE_INT_ARGB)
         val dialog = Stage()
+        dialog.title = "Saving gif"
        // dialog.initOwner(parentStage);
         dialog.initModality(Modality.APPLICATION_MODAL)
         val bar = ProgressBar(0.0)
