@@ -11,7 +11,6 @@ import javafx.scene.image.ImageView
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
-import javafx.scene.transform.Transform
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
 import java.io.File
@@ -47,14 +46,24 @@ class MainWindow: Initializable {
             title = "Open Image File"
             val currentPath: String = Paths.get(".").toAbsolutePath().normalize().toString()
             initialDirectory = File(currentPath)
-            extensionFilters.addAll(ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+            extensionFilters.addAll(ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif", "*.tiff", "*.tif"),
                                     ExtensionFilter("All Files", "*.*"))
         }
         val file = fileChooser.showOpenDialog(mainPane.scene.window)
         if (file!=null) {
             println("file = ${file.path}")
+            println("extention = ${file.extension}")
             val imageView = ImageView()
-            imageView.image = Image("file:${file.path}")
+            if (file.extension!="tiff"){
+                println("Standard file")
+                imageView.image = Image("file:${file.path}")
+            } else {
+                println("Calling TiffWork")
+                val myTiffWork = TiffWork(file)
+                val bufImage = myTiffWork.readFileToBufferedImage()
+//                val image: Image = SwingFXUtils.toFXImage(bufImage, null)
+//                imageView.image = SwingFXUtils.toFXImage(bufImage, null)
+            }
             imageView.isPreserveRatio = true
             imageView.scaleX-=0.6
             imageView.scaleY-=0.6
@@ -98,7 +107,6 @@ class MainWindow: Initializable {
                 if (oldVal.toInt() == 100) addImageToArrayList()
                 if (newVal.toInt() % comboFrameEvery.value == 0) addImageToArrayList()
             }
-//            println("butSlider = $newVal")
         }
     }
 
@@ -127,8 +135,8 @@ class MainWindow: Initializable {
 
     fun onZoomMinus(actionEvent: ActionEvent) {
         for(imageView in stackPaneWithImages.children){
-            imageView.scaleX-=0.2
-            imageView.scaleY-=0.2
+            imageView.scaleX-=0.1
+            imageView.scaleY-=0.1
         }
     }
 

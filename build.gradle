@@ -7,6 +7,10 @@ group = 'me.max'
 version = '1.0-SNAPSHOT'
 
 repositories {
+//    mavenCentral()
+//    maven {
+//        url "https://repo.osgeo.org/repository/release/"
+//    }
     mavenCentral()
 }
 
@@ -23,4 +27,9 @@ application {
 }
 dependencies {
     implementation('com.sksamuel.scrimage:scrimage-core:4.0.32')
+// https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-core
+    implementation("com.twelvemonkeys.imageio:imageio-core:3.9.3")
+// https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-tiff
+    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.9.3")
+
 }
