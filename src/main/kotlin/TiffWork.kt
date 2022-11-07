@@ -15,6 +15,8 @@ class TiffWork(private val file: File) {
         println("img width = ${image.width}  height = ${image.height}")
         return image
     }
+//todo add function to convert to png
+//todo add function to crop image
 }
 
 @Throws(IOException::class)
