@@ -11,11 +11,12 @@ class HelloApplication : Application() {
         val fxmlLoader = FXMLLoader(this.javaClass.getResource("mainWindow2.fxml"))
 //        val fxmlLoader = FXMLLoader(HelloApplication::class.java.getResource("/my/hello-view.fxml"))
 //        val fxmlLoader = FXMLLoader(URL("file:$fxmlPath"))
-        val scene = Scene(fxmlLoader.load())
+        val scene = Scene(fxmlLoader.load(), 1200.0, 900.0)
         primaryStage?.title = "Hello!"
         primaryStage?.scene = scene
 //        primaryStage?.initStyle(StageStyle.UNDECORATED)
 //        primaryStage?.setMaximized(true)
+
         primaryStage?.show()
         primaryStage!!.setOnCloseRequest(object : EventHandler<WindowEvent?> {
             override fun handle(t: WindowEvent?) {

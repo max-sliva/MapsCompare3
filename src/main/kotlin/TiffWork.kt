@@ -91,6 +91,13 @@ fun main(){
     southBox.add(zoomPlusBtn)
     southBox.add(Box.createHorizontalGlue())
     val zoomMinusBtn = JButton("zoom -")
+    zoomMinusBtn.addActionListener {
+        imgIcon.image = image.getScaledInstance(imgIcon.iconWidth-100, -1, Image.SCALE_FAST)
+//        image
+        println("img is scaled")
+        imgLabel.icon = imgIcon
+        myFrame.validate()
+    }
     southBox.add(zoomMinusBtn)
     southBox.add(Box.createHorizontalGlue())
     myFrame.add(southBox, BorderLayout.SOUTH)

@@ -8,9 +8,13 @@ import javafx.scene.SnapshotParameters
 import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.image.PixelWriter
 import javafx.scene.image.WritableImage
+import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
+import javafx.scene.paint.Color
+import javafx.scene.shape.Rectangle
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
 import java.io.File
@@ -20,6 +24,7 @@ import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
+import javax.swing.plaf.basic.BasicTreeUI.MouseHandler
 
 class MainWindow: Initializable {
     @FXML lateinit var mainPane: BorderPane //main window
@@ -27,16 +32,21 @@ class MainWindow: Initializable {
     @FXML lateinit var imagePicker: ComboBox<String>
     @FXML lateinit var buttonBox: ButtonBar
     @FXML lateinit var opacitySlider: Slider
-    @FXML lateinit var buttomSlider: Slider
+    @FXML lateinit var bottomSlider: Slider
     @FXML lateinit var gifBtn: Button
     @FXML lateinit var msBtwFrms: TextField
     @FXML lateinit var comboFrameEvery: ComboBox<Int>
+    @FXML lateinit var rect : Rectangle
+//    @FXML lateinit var anchorPane: AnchorPane
     var isMakingGIF = false
-    val fileToImageViewMap: HashMap<String, ImageView> = HashMap()
+    private val fileToImageViewMap: HashMap<String, ImageView> = HashMap()
     var dirPath: String = ""
     var imgCount = 0
-    val imagesArrayList = ArrayList<WritableImage>()
+    private val imagesArrayList = ArrayList<WritableImage>()
     var frameEvery = 5
+    private var startX: Double = 0.0
+    private var startY: Double = 0.0
+//    private lateinit var rect : Rectangle
 
     fun onAddImageClick(actionEvent: ActionEvent) {
         opacitySlider.value = 100.0
@@ -52,7 +62,7 @@ class MainWindow: Initializable {
         val file = fileChooser.showOpenDialog(mainPane.scene.window)
         if (file!=null) {
             println("file = ${file.path}")
-            println("extention = ${file.extension}")
+            println("extension = ${file.extension}")
             val imageView = ImageView()
             if (file.extension!="tiff"){
                 println("Standard file")
@@ -62,12 +72,38 @@ class MainWindow: Initializable {
                 val myTiffWork = TiffWork(file)
                 val bufImage = myTiffWork.readFileToBufferedImage()
 //                val image: Image = SwingFXUtils.toFXImage(bufImage, null)
-//                imageView.image = SwingFXUtils.toFXImage(bufImage, null)
+                imageView.image = SwingFXUtils.toFXImage(bufImage, null)
             }
             imageView.isPreserveRatio = true
             imageView.scaleX-=0.6
             imageView.scaleY-=0.6
+            val i = arrayOf<Image?>(null)
+            i[0] = imageView.image
+            imageView.onMousePressed = EventHandler {
+                startX = it.x
+                startY = it.y
+                rect.x = startX
+                rect.y = startY
+                rect.toFront()
+//                stackPaneWithImages.children.add(rect)
+            }
 
+            imageView.setOnMouseDragged { event ->
+                val x = event.x
+                val y = event.y
+                val wi = WritableImage(i[0]!!.pixelReader, i[0]!!.width.toInt(), i[0]!!.height.toInt())
+                val pw: PixelWriter = wi.pixelWriter
+                pw.setColor(x.toInt(), y.toInt(), Color(1.0, 0.0, 0.0, 1.0))
+
+                i[0] = wi
+                imageView.image = i[0]
+//                rect.width = rect.x - x
+//                rect.height = rect.y - y
+            }
+            imageView.onMouseReleased = EventHandler {
+                println("Drag ended")
+//                val rect = Rectangle2D()
+            }
 //            imageView.fitHeight = stackPaneWithImages.height
 //            imageView.fitWidthProperty().bind(mainPane.widthProperty())
 //            imageView.fitHeightProperty().bind(mainPane.heightProperty())
@@ -81,7 +117,7 @@ class MainWindow: Initializable {
             println("image pick = ${comboBox.value}")
             buttonBox.isDisable = false
             opacitySlider.isDisable = false
-            buttomSlider.isDisable = false
+            bottomSlider.isDisable = false
 //            println("imageView = ${fileToImageViewMap[comboBox.value]!!.image}")
             opacitySlider.value = fileToImageViewMap[imagePicker.value]!!.opacity*100
         }
@@ -98,7 +134,7 @@ class MainWindow: Initializable {
             }
         }
 
-        buttomSlider.valueProperty().addListener { _, oldVal, newVal ->  //делаем видимой часть картинки в зависимости от положения нижнего бегунка
+        bottomSlider.valueProperty().addListener { _, oldVal, newVal ->  //делаем видимой часть картинки в зависимости от положения нижнего бегунка
             val curX = (fileToImageViewMap[imagePicker.value]!!.image.width * newVal.toInt()) / 100
             fileToImageViewMap[imagePicker.value]!!.viewport = Rectangle2D(curX, 0.0, fileToImageViewMap[imagePicker.value]!!.image.width,
                                                                                                         fileToImageViewMap[imagePicker.value]!!.image.height)

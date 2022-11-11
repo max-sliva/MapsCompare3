@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
+<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="448.0" prefWidth="839.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
+<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="448.0" prefWidth="839.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -27,12 +29,20 @@
       </MenuBar>
    </top>
    <center>
-      <StackPane fx:id="stackPaneWithImages" />
+      <StackPane fx:id="stackPaneWithImages">
+         <children>
+            <Group>
+               <children>
+                  <Button mnemonicParsing="false" text="Button" />
+               </children>
+            </Group>
+            <Rectangle fx:id="rect" arcHeight="5.0" arcWidth="5.0" fill="#ffffff00" height="165.0" stroke="RED" strokeType="INSIDE" width="235.0" />
+         </children></StackPane>
    </center>
    <bottom>
       <VBox BorderPane.alignment="CENTER">
          <children>
-            <Slider fx:id="buttomSlider" disable="true" />
+            <Slider fx:id="bottomSlider" disable="true" />
             <HBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" spacing="20.0" VBox.vgrow="NEVER">
                <children>
                   <Button mnemonicParsing="false" onAction="#onAddImageClick" text="Add image" />

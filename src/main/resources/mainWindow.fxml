@@ -3,8 +3,9 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="403.0" prefWidth="748.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
+<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="403.0" prefWidth="748.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -32,14 +33,21 @@
             <Slider fx:id="opacitySlider" disable="true" majorTickUnit="10.0" minorTickCount="2" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="100.0" BorderPane.alignment="CENTER" />
          </right>
          <center>
-            <StackPane fx:id="stackPaneWithImages" BorderPane.alignment="CENTER" />
+            <StackPane fx:id="stackPaneWithImages" BorderPane.alignment="CENTER">
+               <children>
+                  <AnchorPane>
+                     <children>
+                        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="200.0" layoutX="194.0" layoutY="50.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+                     </children>
+                  </AnchorPane>
+               </children></StackPane>
          </center>
       </BorderPane>
    </center>
    <bottom>
       <VBox BorderPane.alignment="CENTER">
          <children>
-            <Slider fx:id="buttomSlider" disable="true" />
+            <Slider fx:id="bottomSlider" disable="true" />
             <HBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="62.0" prefWidth="748.0" spacing="20.0">
                <children>
                   <Button mnemonicParsing="false" onAction="#onAddImageClick" text="Add image" />
