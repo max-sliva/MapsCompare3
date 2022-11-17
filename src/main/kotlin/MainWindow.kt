@@ -4,15 +4,15 @@ import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.geometry.Rectangle2D
+import javafx.scene.Node
 import javafx.scene.SnapshotParameters
 import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.image.PixelWriter
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.BorderPane
-import javafx.scene.layout.StackPane
+import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.stage.FileChooser
@@ -24,11 +24,11 @@ import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
-import javax.swing.plaf.basic.BasicTreeUI.MouseHandler
+import kotlin.math.abs
 
 class MainWindow: Initializable {
     @FXML lateinit var mainPane: BorderPane //main window
-    @FXML lateinit var stackPaneWithImages: StackPane
+    @FXML lateinit var paneWithImages: AnchorPane
     @FXML lateinit var imagePicker: ComboBox<String>
     @FXML lateinit var buttonBox: ButtonBar
     @FXML lateinit var opacitySlider: Slider
@@ -46,6 +46,7 @@ class MainWindow: Initializable {
     var frameEvery = 5
     private var startX: Double = 0.0
     private var startY: Double = 0.0
+    var firstScale = true
 //    private lateinit var rect : Rectangle
 
     fun onAddImageClick(actionEvent: ActionEvent) {
@@ -64,6 +65,7 @@ class MainWindow: Initializable {
             println("file = ${file.path}")
             println("extension = ${file.extension}")
             val imageView = ImageView()
+            println("imageView.style = ${imageView.style}")
             if (file.extension!="tiff"){
                 println("Standard file")
                 imageView.image = Image("file:${file.path}")
@@ -75,30 +77,37 @@ class MainWindow: Initializable {
                 imageView.image = SwingFXUtils.toFXImage(bufImage, null)
             }
             imageView.isPreserveRatio = true
-            imageView.scaleX-=0.6
-            imageView.scaleY-=0.6
-            val i = arrayOf<Image?>(null)
-            i[0] = imageView.image
+//            imageView.scaleX-=0.6
+//            imageView.scaleY-=0.6
+//            imageView.x = 0.0
+//            imageView.y = 0.0
+//            val i = arrayOf<Image?>(null)
+//            i[0] = imageView.image
             imageView.onMousePressed = EventHandler {
                 startX = it.x
                 startY = it.y
+                paneWithImages.children.remove(rect)
+                rect = Rectangle()
                 rect.x = startX
                 rect.y = startY
+                rect.stroke = Color.RED
+                rect.fill = Color.TRANSPARENT
+                paneWithImages.children.add(rect)
                 rect.toFront()
-//                stackPaneWithImages.children.add(rect)
             }
 
             imageView.setOnMouseDragged { event ->
                 val x = event.x
                 val y = event.y
-                val wi = WritableImage(i[0]!!.pixelReader, i[0]!!.width.toInt(), i[0]!!.height.toInt())
-                val pw: PixelWriter = wi.pixelWriter
-                pw.setColor(x.toInt(), y.toInt(), Color(1.0, 0.0, 0.0, 1.0))
-
-                i[0] = wi
-                imageView.image = i[0]
-//                rect.width = rect.x - x
-//                rect.height = rect.y - y
+//                val wi = WritableImage(i[0]!!.pixelReader, i[0]!!.width.toInt(), i[0]!!.height.toInt())
+//                val pw: PixelWriter = wi.pixelWriter
+//                pw.setColor(x.toInt(), y.toInt(), Color(1.0, 0.0, 0.0, 1.0))
+//
+//                i[0] = wi
+//                imageView.image = i[0]
+                rect.width = abs(x - rect.x)
+                rect.height = abs(y - rect.y)
+                println("x = ${rect.x}  y = ${rect.y}")
             }
             imageView.onMouseReleased = EventHandler {
                 println("Drag ended")
@@ -107,7 +116,22 @@ class MainWindow: Initializable {
 //            imageView.fitHeight = stackPaneWithImages.height
 //            imageView.fitWidthProperty().bind(mainPane.widthProperty())
 //            imageView.fitHeightProperty().bind(mainPane.heightProperty())
-            stackPaneWithImages.children.add(imageView)
+            val cssBordering = """
+                    -fx-border-color: green;
+                    -fx-border-style: solid;
+                    -fx-border-width: 5;
+                """.trimIndent()
+//            val boxForImView = HBox(imageView)
+//            boxForImView.style = cssBordering
+//            AnchorPane.setTopAnchor(boxForImView, 0.0);
+//            AnchorPane.setLeftAnchor(boxForImView, 0.0);
+//            paneWithImages.children.add(boxForImView)
+            paneWithImages.children.add(imageView)
+//            boxForImView.scaleX-=0.1
+//            boxForImView.scaleY-=0.1
+//            boxForImView.scaleX+=0.1
+//            boxForImView.scaleY+=0.1
+
             imagePicker.items.add(file.name)
             fileToImageViewMap[file.name] = imageView
 
@@ -147,37 +171,82 @@ class MainWindow: Initializable {
     }
 
     fun deleteCurImage(actionEvent: ActionEvent) {
-        stackPaneWithImages.children.remove(fileToImageViewMap[imagePicker.value])
+        paneWithImages.children.remove(fileToImageViewMap[imagePicker.value])
         imagePicker.items.remove(imagePicker.value)
         if (imagePicker.items.isEmpty())  buttonBox.isDisable = true
     }
 
     fun curImageLayerUp(actionEvent: ActionEvent) {
-        val i = stackPaneWithImages.children.indexOf(fileToImageViewMap[imagePicker.value])
-        stackPaneWithImages.children[i].toFront()
+        val i = paneWithImages.children.indexOf(fileToImageViewMap[imagePicker.value])
+        paneWithImages.children[i].toFront()
     }
 
     fun curImageLayerDown(actionEvent: ActionEvent) {
-        val i = stackPaneWithImages.children.indexOf(fileToImageViewMap[imagePicker.value])
-        stackPaneWithImages.children[i].toBack()
+        val i = paneWithImages.children.indexOf(fileToImageViewMap[imagePicker.value])
+        paneWithImages.children[i].toBack()
     }
 
+    private fun scaleImage(delta: Double, imageView: Node){
+        val xBeforeScale = imageView.boundsInParentProperty().get().minX
+        val yBeforeScale = imageView.boundsInParentProperty().get().minY
+        println("hbox minX in ParentProperty = ${imageView.boundsInParentProperty().get().minX}")
+        println("hbox minX in LocalProperty = ${imageView.boundsInLocalProperty().get().minX}")
+        imageView.scaleX+=delta
+        imageView.scaleY+=delta
+        val xAfterScale = imageView.boundsInParentProperty().get().minX
+        val yAfterScale = imageView.boundsInParentProperty().get().minY
+        val newWidth = imageView.boundsInParentProperty().get().width
+//        if (imageView is ImageView) println("image width = ${(imageView as ImageView).image.width}")
+//        if (imageView is HBox) println("hbox width after scale = $newWidth")
+        println("xBeforeScale-xAfterScale = ${xBeforeScale-xAfterScale}")
+        println("hbox minX in ParentProperty after scale = ${imageView.boundsInParentProperty().get().minX}")
+        println("hbox minX in LocalProperty after scale = ${imageView.boundsInLocalProperty().get().minX}")
+        imageView.translateX = imageView.translateX+xBeforeScale-xAfterScale
+        imageView.translateY = imageView.translateY+yBeforeScale-yAfterScale
+    }
     fun onZoomPlus(actionEvent: ActionEvent) {
-        for(imageView in stackPaneWithImages.children){
-            imageView.scaleX+=0.2
-            imageView.scaleY+=0.2
+        for(imageView in paneWithImages.children){
+            scaleImage(.1, imageView)
         }
     }
 
     fun onZoomMinus(actionEvent: ActionEvent) {
-        for(imageView in stackPaneWithImages.children){
-            imageView.scaleX-=0.1
-            imageView.scaleY-=0.1
+        for(imageView in paneWithImages.children){
+            scaleImage(-.1, imageView)
+//            println("scale for $imageView")
+//            if (imageView !is Rectangle) {
+////                val oldWidth = imageView.boundsInParentProperty().get().width
+//                val xBeforeScale = imageView.boundsInParentProperty().get().minX
+//                val yBeforeScale = imageView.boundsInParentProperty().get().minY
+////                println("hbox width before scale = $oldWidth")
+////                println("hbox maxX in ParentProperty = ${imageView.boundsInParentProperty().get().maxX}")
+//                println("hbox minX in ParentProperty = ${imageView.boundsInParentProperty().get().minX}")
+////                println("hbox maxX in LocalProperty = ${imageView.boundsInLocalProperty().get().maxX}")
+//                println("hbox minX in LocalProperty = ${imageView.boundsInLocalProperty().get().minX}")
+//                imageView.scaleX -= 0.1
+//                imageView.scaleY -= 0.1
+//                val xAfterScale = imageView.boundsInParentProperty().get().minX
+//                val yAfterScale = imageView.boundsInParentProperty().get().minY
+//                val newWidth = imageView.boundsInParentProperty().get().width
+//                if (imageView is ImageView) println("image width = ${(imageView as ImageView).image.width}")
+//                if (imageView is HBox) println("hbox width after scale = $newWidth")
+////                println("oldWidth - newWidth = ${oldWidth - newWidth}")
+//                println("xBeforeScale-xAfterScale = ${xBeforeScale-xAfterScale}")
+//                println("hbox minX in ParentProperty after scale = ${imageView.boundsInParentProperty().get().minX}")
+//                println("hbox minX in LocalProperty after scale = ${imageView.boundsInLocalProperty().get().minX}")
+//                imageView.translateX = imageView.translateX+xBeforeScale-xAfterScale
+//                imageView.translateY = imageView.translateY+yBeforeScale-yAfterScale
+//            }
+//            imageView.translateX = imageView.widthPro
+//            AnchorPane.setTopAnchor(imageView, 0.0);
+//            AnchorPane.setLeftAnchor(imageView, 0.0);
+//            AnchorPane.setRightAnchor(imageView, 0.0);
+//            AnchorPane.setBottomAnchor(imageView, 0.0);
         }
     }
 
-    fun makeImage(type: String) { //todo make thread for this work
-        val snapshot: WritableImage = stackPaneWithImages.snapshot(SnapshotParameters(), null)
+    fun makeImage(type: String) {
+        val snapshot: WritableImage = paneWithImages.snapshot(SnapshotParameters(), null)
         val file = File("$dirPath/img$imgCount.$type")
         imgCount++
         ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null),"$type", file)
@@ -188,7 +257,7 @@ class MainWindow: Initializable {
     fun addImageToArrayList(){//todo почитать про SnapshotParameters, чтобы сжать изображение
 //        val sp = SnapshotParameters()
 //        sp.transform = Transform.scale(5.0, 5.0)
-        val snapshot: WritableImage = stackPaneWithImages.snapshot(SnapshotParameters(), null)
+        val snapshot: WritableImage = paneWithImages.snapshot(SnapshotParameters(), null)
         imagesArrayList.add(snapshot)
     }
 
@@ -227,5 +296,13 @@ class MainWindow: Initializable {
         println("Program started")
         comboFrameEvery.items.addAll(1,2,3,4,5)
         comboFrameEvery.value = 5
+//        val cssBordering = """
+//                .image-view:border {
+//                    -fx-border-color: green;
+//                    -fx-border-style: solid;
+//                    -fx-border-width: 5;
+//                }
+//                """.trimIndent()
+//        paneWithImages.style = cssBordering
     }
 }

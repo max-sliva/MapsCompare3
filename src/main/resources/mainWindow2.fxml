@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 
-<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="448.0" prefWidth="839.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
+<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="448.0" prefWidth="839.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -29,15 +28,11 @@
       </MenuBar>
    </top>
    <center>
-      <StackPane fx:id="stackPaneWithImages">
+      <AnchorPane fx:id="paneWithImages" prefHeight="200.0" prefWidth="200.0">
          <children>
-            <Group>
-               <children>
-                  <Button mnemonicParsing="false" text="Button" />
-               </children>
-            </Group>
-            <Rectangle fx:id="rect" arcHeight="5.0" arcWidth="5.0" fill="#ffffff00" height="165.0" stroke="RED" strokeType="INSIDE" width="235.0" />
-         </children></StackPane>
+            <Rectangle fx:id="rect" arcHeight="5.0" arcWidth="5.0" fill="#ffffff00" height="165.0" stroke="#ff000000" strokeType="INSIDE" width="235.0" />
+         </children>
+      </AnchorPane>
    </center>
    <bottom>
       <VBox BorderPane.alignment="CENTER">
