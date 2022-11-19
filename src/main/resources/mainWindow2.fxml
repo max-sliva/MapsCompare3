@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 
-<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="448.0" prefWidth="839.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
+<BorderPane fx:id="mainPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="448.0" prefWidth="839.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainWindow">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -17,6 +17,7 @@
           <Menu mnemonicParsing="false" text="Edit">
             <items>
               <MenuItem mnemonicParsing="false" text="Delete" />
+                  <MenuItem mnemonicParsing="false" text="CropImage" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -49,6 +50,7 @@
                         <Button mnemonicParsing="false" onAction="#curImageLayerDown" text="Down" />
                         <Button mnemonicParsing="false" onAction="#onZoomPlus" text="Zoom +" />
                         <Button mnemonicParsing="false" onAction="#onZoomMinus" text="Zoom -" />
+                        <Button fx:id="cropBtn" mnemonicParsing="false" onAction="#onCropImage" text="CropImage" />
                     </buttons>
                   </ButtonBar>
                </children>

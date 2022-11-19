@@ -12,11 +12,12 @@ import javafx.scene.image.ImageView
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.BorderPane
-import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
+import java.awt.Graphics
+import java.awt.image.BufferedImage
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -121,17 +122,7 @@ class MainWindow: Initializable {
                     -fx-border-style: solid;
                     -fx-border-width: 5;
                 """.trimIndent()
-//            val boxForImView = HBox(imageView)
-//            boxForImView.style = cssBordering
-//            AnchorPane.setTopAnchor(boxForImView, 0.0);
-//            AnchorPane.setLeftAnchor(boxForImView, 0.0);
-//            paneWithImages.children.add(boxForImView)
             paneWithImages.children.add(imageView)
-//            boxForImView.scaleX-=0.1
-//            boxForImView.scaleY-=0.1
-//            boxForImView.scaleX+=0.1
-//            boxForImView.scaleY+=0.1
-
             imagePicker.items.add(file.name)
             fileToImageViewMap[file.name] = imageView
 
@@ -143,7 +134,7 @@ class MainWindow: Initializable {
             opacitySlider.isDisable = false
             bottomSlider.isDisable = false
 //            println("imageView = ${fileToImageViewMap[comboBox.value]!!.image}")
-            opacitySlider.value = fileToImageViewMap[imagePicker.value]!!.opacity*100
+            if (imagePicker.value!=null) opacitySlider.value = fileToImageViewMap[imagePicker.value]!!.opacity*100
         }
 
         opacitySlider.valueProperty().addListener{ _, oldVal, newVal ->
@@ -187,22 +178,24 @@ class MainWindow: Initializable {
     }
 
     private fun scaleImage(delta: Double, imageView: Node){
-        val xBeforeScale = imageView.boundsInParentProperty().get().minX
-        val yBeforeScale = imageView.boundsInParentProperty().get().minY
-        println("hbox minX in ParentProperty = ${imageView.boundsInParentProperty().get().minX}")
-        println("hbox minX in LocalProperty = ${imageView.boundsInLocalProperty().get().minX}")
-        imageView.scaleX+=delta
-        imageView.scaleY+=delta
-        val xAfterScale = imageView.boundsInParentProperty().get().minX
-        val yAfterScale = imageView.boundsInParentProperty().get().minY
-        val newWidth = imageView.boundsInParentProperty().get().width
+        if (imageView !is Rectangle){
+            val xBeforeScale = imageView.boundsInParentProperty().get().minX
+            val yBeforeScale = imageView.boundsInParentProperty().get().minY
+            println("hbox minX in ParentProperty = ${imageView.boundsInParentProperty().get().minX}")
+            println("hbox minX in LocalProperty = ${imageView.boundsInLocalProperty().get().minX}")
+            imageView.scaleX += delta
+            imageView.scaleY += delta
+            val xAfterScale = imageView.boundsInParentProperty().get().minX
+            val yAfterScale = imageView.boundsInParentProperty().get().minY
+            val newWidth = imageView.boundsInParentProperty().get().width
 //        if (imageView is ImageView) println("image width = ${(imageView as ImageView).image.width}")
 //        if (imageView is HBox) println("hbox width after scale = $newWidth")
-        println("xBeforeScale-xAfterScale = ${xBeforeScale-xAfterScale}")
-        println("hbox minX in ParentProperty after scale = ${imageView.boundsInParentProperty().get().minX}")
-        println("hbox minX in LocalProperty after scale = ${imageView.boundsInLocalProperty().get().minX}")
-        imageView.translateX = imageView.translateX+xBeforeScale-xAfterScale
-        imageView.translateY = imageView.translateY+yBeforeScale-yAfterScale
+            println("xBeforeScale-xAfterScale = ${xBeforeScale - xAfterScale}")
+            println("hbox minX in ParentProperty after scale = ${imageView.boundsInParentProperty().get().minX}")
+            println("hbox minX in LocalProperty after scale = ${imageView.boundsInLocalProperty().get().minX}")
+            imageView.translateX = imageView.translateX + xBeforeScale - xAfterScale
+            imageView.translateY = imageView.translateY + yBeforeScale - yAfterScale
+        }
     }
     fun onZoomPlus(actionEvent: ActionEvent) {
         for(imageView in paneWithImages.children){
@@ -213,35 +206,6 @@ class MainWindow: Initializable {
     fun onZoomMinus(actionEvent: ActionEvent) {
         for(imageView in paneWithImages.children){
             scaleImage(-.1, imageView)
-//            println("scale for $imageView")
-//            if (imageView !is Rectangle) {
-////                val oldWidth = imageView.boundsInParentProperty().get().width
-//                val xBeforeScale = imageView.boundsInParentProperty().get().minX
-//                val yBeforeScale = imageView.boundsInParentProperty().get().minY
-////                println("hbox width before scale = $oldWidth")
-////                println("hbox maxX in ParentProperty = ${imageView.boundsInParentProperty().get().maxX}")
-//                println("hbox minX in ParentProperty = ${imageView.boundsInParentProperty().get().minX}")
-////                println("hbox maxX in LocalProperty = ${imageView.boundsInLocalProperty().get().maxX}")
-//                println("hbox minX in LocalProperty = ${imageView.boundsInLocalProperty().get().minX}")
-//                imageView.scaleX -= 0.1
-//                imageView.scaleY -= 0.1
-//                val xAfterScale = imageView.boundsInParentProperty().get().minX
-//                val yAfterScale = imageView.boundsInParentProperty().get().minY
-//                val newWidth = imageView.boundsInParentProperty().get().width
-//                if (imageView is ImageView) println("image width = ${(imageView as ImageView).image.width}")
-//                if (imageView is HBox) println("hbox width after scale = $newWidth")
-////                println("oldWidth - newWidth = ${oldWidth - newWidth}")
-//                println("xBeforeScale-xAfterScale = ${xBeforeScale-xAfterScale}")
-//                println("hbox minX in ParentProperty after scale = ${imageView.boundsInParentProperty().get().minX}")
-//                println("hbox minX in LocalProperty after scale = ${imageView.boundsInLocalProperty().get().minX}")
-//                imageView.translateX = imageView.translateX+xBeforeScale-xAfterScale
-//                imageView.translateY = imageView.translateY+yBeforeScale-yAfterScale
-//            }
-//            imageView.translateX = imageView.widthPro
-//            AnchorPane.setTopAnchor(imageView, 0.0);
-//            AnchorPane.setLeftAnchor(imageView, 0.0);
-//            AnchorPane.setRightAnchor(imageView, 0.0);
-//            AnchorPane.setBottomAnchor(imageView, 0.0);
         }
     }
 
@@ -292,17 +256,31 @@ class MainWindow: Initializable {
         Runtime.getRuntime().exec("ShareX/ShareX.exe")
     }
 
+    private fun cropImage(originalImgage: BufferedImage, x: Int, y: Int, w: Int, h: Int): BufferedImage? {
+            return originalImgage.getSubimage(x, y, w, h)
+    }
+
+    private fun cropImage2(image: BufferedImage, startX: Int, startY: Int, endX: Int, endY: Int): BufferedImage{
+        val img = image.getSubimage(startX, startY, endX, endY) //fill in the corners of the desired crop location here
+        val copyOfImage = BufferedImage(img.width, img.height, BufferedImage.TYPE_INT_RGB)
+        val g: Graphics = copyOfImage.createGraphics()
+        g.drawImage(img, 0, 0, null)
+        return copyOfImage //or use it however you want
+    }
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         println("Program started")
         comboFrameEvery.items.addAll(1,2,3,4,5)
         comboFrameEvery.value = 5
-//        val cssBordering = """
-//                .image-view:border {
-//                    -fx-border-color: green;
-//                    -fx-border-style: solid;
-//                    -fx-border-width: 5;
-//                }
-//                """.trimIndent()
-//        paneWithImages.style = cssBordering
+    }
+
+    fun onCropImage(actionEvent: ActionEvent) {
+        val newImage = fileToImageViewMap[imagePicker.value]?.image
+        var image: BufferedImage? = null
+        image = cropImage2(SwingFXUtils.fromFXImage(newImage, image), rect.x.toInt(), rect.y.toInt(), rect.width.toInt(), rect.height.toInt())
+        deleteCurImage(ActionEvent())
+        val imageView = ImageView()
+        imageView.image = SwingFXUtils.toFXImage(image, null)
+        paneWithImages.children.add(imageView)
+        //todo repair crop from tiff
     }
 }
