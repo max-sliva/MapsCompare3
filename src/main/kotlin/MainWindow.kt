@@ -77,6 +77,7 @@ class MainWindow: Initializable {
                 imageView.image = SwingFXUtils.toFXImage(bufImage, null)
             }
             imageView.isPreserveRatio = true
+//            todo сделать подгон размера картинки под размер окна
 //            imageView.scaleX-=0.6
 //            imageView.scaleY-=0.6
 //            imageView.x = 0.0
