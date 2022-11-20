@@ -16,7 +16,6 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
-import java.awt.Graphics
 import java.awt.image.BufferedImage
 import java.io.File
 import java.net.URL
@@ -40,7 +39,7 @@ class MainWindow: Initializable {
     @FXML lateinit var rect : Rectangle
 //    @FXML lateinit var anchorPane: AnchorPane
     var isMakingGIF = false
-    private val fileToImageViewMap: HashMap<String, ImageView> = HashMap()
+    private val fileToImageViewMap: HashMap<String, ImageView?> = HashMap()
     var dirPath: String = ""
     var imgCount = 0
     private val imagesArrayList = ArrayList<WritableImage>()
@@ -163,7 +162,13 @@ class MainWindow: Initializable {
 
     fun deleteCurImage(actionEvent: ActionEvent) {
         paneWithImages.children.remove(fileToImageViewMap[imagePicker.value])
+        fileToImageViewMap[imagePicker.value]?.image = null
+        fileToImageViewMap[imagePicker.value] =  null
+        fileToImageViewMap.remove(imagePicker.value)
         imagePicker.items.remove(imagePicker.value)
+        System.gc()
+        val r = Runtime.getRuntime()
+        r.freeMemory()
         if (imagePicker.items.isEmpty())  buttonBox.isDisable = true
     }
 
@@ -260,12 +265,21 @@ class MainWindow: Initializable {
             return originalImgage.getSubimage(x, y, w, h)
     }
 
-    private fun cropImage2(image: BufferedImage, startX: Int, startY: Int, endX: Int, endY: Int): BufferedImage{
+    private fun cropImage2(image: BufferedImage, startX: Int, startY: Int, endX: Int, endY: Int): File {
         val img = image.getSubimage(startX, startY, endX, endY) //fill in the corners of the desired crop location here
         val copyOfImage = BufferedImage(img.width, img.height, BufferedImage.TYPE_INT_RGB)
-        val g: Graphics = copyOfImage.createGraphics()
-        g.drawImage(img, 0, 0, null)
-        return copyOfImage //or use it however you want
+        var currentPath: String = Paths.get(".").toAbsolutePath().normalize().toString()
+//        println("curPath = ${currentPath}")
+//        currentPath = currentPath.dropLastWhile { it!='\\' }
+        println("curPath = ${currentPath}")
+        val outputfile = File("$currentPath\\CroppedImages\\ImageCropped.png")
+        ImageIO.write(img, "png", outputfile)
+//        Image("file:${file.path}")
+//        val g: Graphics = copyOfImage.createGraphics()
+//        g.drawImage(img, 0, 0, null)
+//        return copyOfImage //or use it however you want
+//        return img
+        return outputfile
     }
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         println("Program started")
@@ -276,11 +290,14 @@ class MainWindow: Initializable {
     fun onCropImage(actionEvent: ActionEvent) {
         val newImage = fileToImageViewMap[imagePicker.value]?.image
         var image: BufferedImage? = null
-        image = cropImage2(SwingFXUtils.fromFXImage(newImage, image), rect.x.toInt(), rect.y.toInt(), rect.width.toInt(), rect.height.toInt())
+        val fileWithCropped = cropImage2(SwingFXUtils.fromFXImage(newImage, image), rect.x.toInt(), rect.y.toInt(), rect.width.toInt(), rect.height.toInt())
         deleteCurImage(ActionEvent())
+        mainPane.center = null
+        paneWithImages = AnchorPane()
+        mainPane.center = paneWithImages
         val imageView = ImageView()
-        imageView.image = SwingFXUtils.toFXImage(image, null)
+//        imageView.image = SwingFXUtils.toFXImage(image, null)
+        imageView.image = Image("file:${fileWithCropped.path}")
         paneWithImages.children.add(imageView)
-        //todo repair crop from tiff
     }
 }
