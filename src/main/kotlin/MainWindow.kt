@@ -75,9 +75,13 @@ class MainWindow: Initializable {
                 val bufImage = myTiffWork.readFileToBufferedImage()
 //                val image: Image = SwingFXUtils.toFXImage(bufImage, null)
                 imageView.image = SwingFXUtils.toFXImage(bufImage, null)
+                bufImage.flush()
             }
             imageView.isPreserveRatio = true
 //            todo сделать подгон размера картинки под размер окна
+            println("image size: heght = ${imageView.image.height} width = ${imageView.image.width}")
+//            imageView.fitHeight = paneWithImages.height - 100
+                //todo разобраться с изменением координат при изменении размера картинки
 //            imageView.scaleX-=0.6
 //            imageView.scaleY-=0.6
 //            imageView.x = 0.0
@@ -109,6 +113,7 @@ class MainWindow: Initializable {
                 rect.width = abs(x - rect.x)
                 rect.height = abs(y - rect.y)
                 println("x = ${rect.x}  y = ${rect.y}")
+                println("width = ${rect.width}  height = ${rect.height}")
             }
             imageView.onMouseReleased = EventHandler {
                 println("Drag ended")
@@ -268,11 +273,11 @@ class MainWindow: Initializable {
 
     private fun cropImage2(image: BufferedImage, startX: Int, startY: Int, endX: Int, endY: Int): File {
         val img = image.getSubimage(startX, startY, endX, endY) //fill in the corners of the desired crop location here
-        val copyOfImage = BufferedImage(img.width, img.height, BufferedImage.TYPE_INT_RGB)
+//        val copyOfImage = BufferedImage(img.width, img.height, BufferedImage.TYPE_INT_RGB)
         var currentPath: String = Paths.get(".").toAbsolutePath().normalize().toString()
 //        println("curPath = ${currentPath}")
 //        currentPath = currentPath.dropLastWhile { it!='\\' }
-        println("curPath = ${currentPath}")
+        println("curPath = $currentPath")
         val outputfile = File("$currentPath\\CroppedImages\\ImageCropped.png")
         ImageIO.write(img, "png", outputfile)
 //        Image("file:${file.path}")
@@ -292,6 +297,7 @@ class MainWindow: Initializable {
         val newImage = fileToImageViewMap[imagePicker.value]?.image
         var image: BufferedImage? = null
         val fileWithCropped = cropImage2(SwingFXUtils.fromFXImage(newImage, image), rect.x.toInt(), rect.y.toInt(), rect.width.toInt(), rect.height.toInt())
+//        val fileWithCropped = cropImage2(SwingFXUtils.fromFXImage(newImage, image), rect.x.toInt(), rect.y.toInt(), (rect.x+rect.width).toInt(), (rect.y+rect.height).toInt())
         deleteCurImage(ActionEvent())
         mainPane.center = null
         paneWithImages = AnchorPane()
