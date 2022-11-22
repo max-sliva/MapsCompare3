@@ -47,6 +47,9 @@ class MainWindow: Initializable {
     private var startX: Double = 0.0
     private var startY: Double = 0.0
     var firstScale = true
+    var scaleX: Double = 1.0
+    var scaleY: Double = 1.0
+    var globalTranslateX = 0.0
 //    private lateinit var rect : Rectangle
 
     fun onAddImageClick(actionEvent: ActionEvent) {
@@ -78,10 +81,19 @@ class MainWindow: Initializable {
                 bufImage.flush()
             }
             imageView.isPreserveRatio = true
-//            todo сделать подгон размера картинки под размер окна
             println("image size: heght = ${imageView.image.height} width = ${imageView.image.width}")
-//            imageView.fitHeight = paneWithImages.height - 100
-                //todo разобраться с изменением координат при изменении размера картинки
+            val imageViewHeightBeforeScale = imageView.boundsInLocal.height
+            val imageViewWidthBeforeScale = imageView.boundsInLocal.width
+            println("imageView size before fitHeight: height = ${imageView.boundsInLocal.height} width = ${imageView.boundsInLocal.width}")
+            if (imageView.image.height>(paneWithImages.height - 100))
+                imageView.fitHeight = paneWithImages.height - 100 // подгон размера картинки под размер окна
+            println("imageView.scaleX = ${imageView.scaleX}")
+            println("imageView size after fitHeight: height = ${imageView.boundsInLocal.height} width = ${imageView.boundsInLocal.width}")
+            scaleX =  imageViewWidthBeforeScale / imageView.boundsInLocal.width //сохраняем параметры скейла для последующего преобразования координат вырезающего прямоугольника
+            scaleY =  imageViewHeightBeforeScale / imageView.boundsInLocal.height
+//            val scaleX = imageView.boundsInLocal.width / imageViewWidthBeforeScale
+//            val scaleY = imageView.boundsInLocal.height / imageViewHeightBeforeScale
+            println("scaleX = $scaleX  scaleY = $scaleY")
 //            imageView.scaleX-=0.6
 //            imageView.scaleY-=0.6
 //            imageView.x = 0.0
@@ -93,8 +105,9 @@ class MainWindow: Initializable {
                 startY = it.y
                 paneWithImages.children.remove(rect)
                 rect = Rectangle()
-                rect.x = startX
-                rect.y = startY
+                val curScale = fileToImageViewMap[imagePicker.value]!!.scaleX
+                rect.x = startX*curScale
+                rect.y = startY*curScale
                 rect.stroke = Color.RED
                 rect.fill = Color.TRANSPARENT
                 paneWithImages.children.add(rect)
@@ -102,6 +115,7 @@ class MainWindow: Initializable {
             }
 
             imageView.setOnMouseDragged { event ->
+                val curScale = fileToImageViewMap[imagePicker.value]!!.scaleX
                 val x = event.x
                 val y = event.y
 //                val wi = WritableImage(i[0]!!.pixelReader, i[0]!!.width.toInt(), i[0]!!.height.toInt())
@@ -110,8 +124,8 @@ class MainWindow: Initializable {
 //
 //                i[0] = wi
 //                imageView.image = i[0]
-                rect.width = abs(x - rect.x)
-                rect.height = abs(y - rect.y)
+                rect.width = abs(x*curScale - rect.x)
+                rect.height = abs(y*curScale - rect.y)
                 println("x = ${rect.x}  y = ${rect.y}")
                 println("width = ${rect.width}  height = ${rect.height}")
             }
@@ -158,7 +172,9 @@ class MainWindow: Initializable {
             val curX = (fileToImageViewMap[imagePicker.value]!!.image.width * newVal.toInt()) / 100
             fileToImageViewMap[imagePicker.value]!!.viewport = Rectangle2D(curX, 0.0, fileToImageViewMap[imagePicker.value]!!.image.width,
                                                                                                         fileToImageViewMap[imagePicker.value]!!.image.height)
+            println("translateX = ${fileToImageViewMap[imagePicker.value]!!.translateX}")
             fileToImageViewMap[imagePicker.value]!!.translateX = curX * fileToImageViewMap[imagePicker.value]!!.scaleX //и сдвигаем картинку на нужное значение
+            fileToImageViewMap[imagePicker.value]!!.translateX = fileToImageViewMap[imagePicker.value]!!.translateX + globalTranslateX //чтоб картинка оставалась на месте после скейла
             if (isMakingGIF) {
                 if (oldVal.toInt() == 100) addImageToArrayList()
                 if (newVal.toInt() % comboFrameEvery.value == 0) addImageToArrayList()
@@ -206,6 +222,10 @@ class MainWindow: Initializable {
             println("hbox minX in LocalProperty after scale = ${imageView.boundsInLocalProperty().get().minX}")
             imageView.translateX = imageView.translateX + xBeforeScale - xAfterScale
             imageView.translateY = imageView.translateY + yBeforeScale - yAfterScale
+            println("translateX = ${fileToImageViewMap[imagePicker.value]!!.translateX}")
+            val curScale = fileToImageViewMap[imagePicker.value]!!.scaleX
+            println("curScale = $curScale")
+            globalTranslateX = fileToImageViewMap[imagePicker.value]!!.translateX //сохраняем параметр сдвига для сохранения картинки в нужном месте при последующих манипуляциях
         }
     }
     fun onZoomPlus(actionEvent: ActionEvent) {
@@ -271,8 +291,18 @@ class MainWindow: Initializable {
             return originalImgage.getSubimage(x, y, w, h)
     }
 
-    private fun cropImage2(image: BufferedImage, startX: Int, startY: Int, endX: Int, endY: Int): File {
-        val img = image.getSubimage(startX, startY, endX, endY) //fill in the corners of the desired crop location here
+    private fun cropImage2(image: BufferedImage, startX: Int, startY: Int, width: Int, height: Int): File {
+        //todo разобраться с преобразованием координат прямоугольника после скейла
+//        println("cropImage2 params = $startX, $startY, $width, $height")
+//        println("scaleX = $scaleX ")
+//        println("cropImage2 params * scale = ${(startX*scaleX).toInt()} , ${(startY*scaleY).toInt()}, ${(width * scaleX).toInt()}, ${(height * scaleY).toInt()}")
+        val curScale = fileToImageViewMap[imagePicker.value]!!.scaleX //текущий скейл по кнопкам + и -
+//        val img = image.getSubimage((startX*scaleX*curScale).toInt(), (startY*scaleY*curScale).toInt(),
+//                                    (width*scaleX*curScale).toInt(), (height*scaleY*curScale).toInt()    )
+        val img = image.getSubimage((startX*scaleX).toInt(), (startY*scaleY).toInt(),
+                                    (width*scaleX).toInt(), (height*scaleY).toInt() )
+        image.flush()
+        //fill in the corners of the desired crop location here
 //        val copyOfImage = BufferedImage(img.width, img.height, BufferedImage.TYPE_INT_RGB)
         var currentPath: String = Paths.get(".").toAbsolutePath().normalize().toString()
 //        println("curPath = ${currentPath}")
@@ -299,12 +329,14 @@ class MainWindow: Initializable {
         val fileWithCropped = cropImage2(SwingFXUtils.fromFXImage(newImage, image), rect.x.toInt(), rect.y.toInt(), rect.width.toInt(), rect.height.toInt())
 //        val fileWithCropped = cropImage2(SwingFXUtils.fromFXImage(newImage, image), rect.x.toInt(), rect.y.toInt(), (rect.x+rect.width).toInt(), (rect.y+rect.height).toInt())
         deleteCurImage(ActionEvent())
-        mainPane.center = null
-        paneWithImages = AnchorPane()
-        mainPane.center = paneWithImages
+//        mainPane.center = null
+//        paneWithImages = AnchorPane()
+//        mainPane.center = paneWithImages
         val imageView = ImageView()
 //        imageView.image = SwingFXUtils.toFXImage(image, null)
         imageView.image = Image("file:${fileWithCropped.path}")
+        imageView.isPreserveRatio = true
+        imageView.fitHeight = paneWithImages.height - 100 // подгон размера картинки под размер окна
         paneWithImages.children.add(imageView)
     }
 }
