@@ -1,4 +1,6 @@
 import java.awt.*
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
@@ -78,17 +80,59 @@ fun main(){
     var imgIcon = ImageIcon()
     var image: BufferedImage? = null
     var imgLabel: JLabel? = null
-//    imgLabel.addMouseListener({
-//
-//    })
-    val drawRectBtn = JButton("rect")
+    var dragStartX = 0
+    var dragStartY = 0
+    var oldX = 0
+    var oldY = 0
+    var inDrawingRect = false
+    var grForLabel2d: Graphics2D? = null
+    var square = Rectangle(1,1,0,0)
+    var a = object: MouseAdapter() {
+        override fun mouseClicked(e: MouseEvent) {
+            println("something")
+        }
+
+        override fun mousePressed(e: MouseEvent?) {
+            super.mousePressed(e)
+            inDrawingRect = true
+            dragStartX = e!!.x
+            dragStartY = e!!.y
+            println("inDrawingRect = $inDrawingRect")
+            grForLabel2d = imgLabel?.graphics as Graphics2D
+            val pen = BasicStroke(2F,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_ROUND)
+            grForLabel2d?.stroke = pen
+            grForLabel2d?.color = Color.RED
+            square.setLocation(dragStartX, dragStartY)
+        }
+
+        override fun mouseDragged(e: MouseEvent?) {
+//            println("mouse x = ${e?.x}  mouse y = ${e?.y} ")
+            imgLabel?.icon = null
+            imgLabel?.icon = imgIcon
+//            grForLabel2d.drawRect(dragStartX, dragStartY, e!!.x-dragStartX, e!!.y-dragStartY)
+            square.size = Dimension(e!!.x-dragStartX, e!!.y-dragStartY)
+            grForLabel2d?.draw(square)
+            super.mouseDragged(e)
+        }
+
+        override fun mouseReleased(e: MouseEvent?) {
+            super.mouseReleased(e)
+            println("inDrawingRect = $inDrawingRect")
+            square.size = Dimension(e!!.x-dragStartX, e!!.y-dragStartY)
+            grForLabel2d?.draw(square)
+            inDrawingRect = false
+        }
+    }
+//    imgLabel?.addMouseListener(a)
+//    imgIcon?.addMouseListener(a)
+    val cropBtn = JButton("cropImage")
     val openBtn = JButton("Open tiff")
     openBtn.addActionListener {
 //        file = File("C:/IdeaProjects/at3_1m4_01.tiff")
         file = readTiffFromFile(myFrame)
         println("file path = ${file.path}")
         if (!file.path.equals("nullnull")){
-            drawRectBtn.isEnabled = true
+            cropBtn.isEnabled = true
             image = ImageIO.read(file)
             println("file is read")
             println("img width = ${image?.width}  height = ${image?.height}")
@@ -97,6 +141,8 @@ fun main(){
 //    ImageIO.write(outputImage, formatName, new File(outputImagePath));
             println("img is scaled")
             imgLabel = JLabel(imgIcon)
+            imgLabel!!.addMouseListener(a)
+            imgLabel?.addMouseMotionListener(a)
             println("label is made")
             myFrame.add(JScrollPane(imgLabel), BorderLayout.CENTER)
             println("label is added to frame")
@@ -108,20 +154,17 @@ fun main(){
     val zoomPlusBtn = JButton("zoom +")
     zoomPlusBtn.addActionListener {
         imgIcon.image = image?.getScaledInstance(imgIcon.iconWidth+100, -1, Image.SCALE_FAST)
-//        image
         println("img is scaled")
         imgLabel?.icon = null
         imgLabel?.icon = imgIcon
         myFrame.validate()
 //        myFrame.repaint()
-//        imgLabel
     }
     southBox.add(zoomPlusBtn)
     southBox.add(Box.createHorizontalGlue())
     val zoomMinusBtn = JButton("zoom -")
     zoomMinusBtn.addActionListener {
         imgIcon.image = image?.getScaledInstance(imgIcon.iconWidth-100, -1, Image.SCALE_FAST)
-//        image
         println("img is scaled")
         imgLabel?.icon = null
         imgLabel?.icon = imgIcon
@@ -130,16 +173,12 @@ fun main(){
     }
     southBox.add(zoomMinusBtn)
     southBox.add(Box.createHorizontalGlue())
-    drawRectBtn.addActionListener {
-//        val grForLabel = imgLabel?.graphics
-        val grForLabel2d = imgLabel?.graphics as Graphics2D
-        val pen = BasicStroke(2F,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_ROUND)
-        grForLabel2d.stroke = pen
-        grForLabel2d.color = Color.RED
-        grForLabel2d.drawRect(10, 10, 200, 200)
+    cropBtn.addActionListener {
+//        todo make crop for image
+
     }
-    drawRectBtn.isEnabled = false
-    southBox.add(drawRectBtn)
+    cropBtn.isEnabled = false
+    southBox.add(cropBtn)
     southBox.add(Box.createHorizontalGlue())
     myFrame.add(southBox, BorderLayout.SOUTH)
     myFrame.validate()
