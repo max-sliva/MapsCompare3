@@ -17,7 +17,6 @@ class TiffWork(private val file: File) {
         return image
     }
 //todo add function to convert to png
-//todo add function to crop image
 }
 
 @Throws(IOException::class)
@@ -59,26 +58,13 @@ fun main(){
         setLocationRelativeTo(null)
         isVisible = true
     }
-//    val file = File("C:/IdeaProjects/at3_1m4_01.tiff")
-//
-//    var imgIcon = ImageIcon()
-//    val image = ImageIO.read(file)
-//    println("file is read")
-//    println("img width = ${image.width}  height = ${image.height}")
-//    imgIcon.image = image.getScaledInstance(1400, -1, Image.SCALE_FAST)
-//    println("img width = ${image.width}  height = ${image.height}")
-//
-////    ImageIO.write(outputImage, formatName, new File(outputImagePath));
-//    println("img is scaled")
-//    val imgLabel = JLabel(imgIcon)
-//    println("label is made")
-//    myFrame.add(JScrollPane(imgLabel), BorderLayout.CENTER)
-//    println("label is added to frame")
+
     val southBox = Box(BoxLayout.X_AXIS)
     southBox.add(Box.createHorizontalGlue())
     var file: File
     var imgIcon = ImageIcon()
     var image: BufferedImage? = null
+    var imageScale = 1.0
     var imgLabel: JLabel? = null
     var dragStartX = 0
     var dragStartY = 0
@@ -94,23 +80,30 @@ fun main(){
 
         override fun mousePressed(e: MouseEvent?) {
             super.mousePressed(e)
+            imgLabel?.icon = null
+            imgLabel?.icon = imgIcon
             inDrawingRect = true
             dragStartX = e!!.x
             dragStartY = e!!.y
             println("inDrawingRect = $inDrawingRect")
             grForLabel2d = imgLabel?.graphics as Graphics2D
-            val pen = BasicStroke(2F,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_ROUND)
+            val pen = BasicStroke(1F,BasicStroke.CAP_SQUARE,BasicStroke.JOIN_ROUND)
             grForLabel2d?.stroke = pen
             grForLabel2d?.color = Color.RED
+            square.size = Dimension(0, 0)
             square.setLocation(dragStartX, dragStartY)
+            grForLabel2d?.draw(square)
         }
 
         override fun mouseDragged(e: MouseEvent?) {
 //            println("mouse x = ${e?.x}  mouse y = ${e?.y} ")
-            imgLabel?.icon = null
-            imgLabel?.icon = imgIcon
+//            imgLabel?.icon = null
+//            imgLabel?.icon = imgIcon
 //            grForLabel2d.drawRect(dragStartX, dragStartY, e!!.x-dragStartX, e!!.y-dragStartY)
             square.size = Dimension(e!!.x-dragStartX, e!!.y-dragStartY)
+            //при рисовании прямоугольника сначала вставляем картинку размером с вырезанный до этого участок, потом сам прямоугольник
+            //чтобы не было мерцания
+            grForLabel2d?.drawImage(cropImage(image as BufferedImage, square.x-3, square.y-3, square.width+3, square.height+3), null, square.x+2, square.y+2)
             grForLabel2d?.draw(square)
             super.mouseDragged(e)
         }
@@ -118,13 +111,14 @@ fun main(){
         override fun mouseReleased(e: MouseEvent?) {
             super.mouseReleased(e)
             println("inDrawingRect = $inDrawingRect")
+//            imgLabel?.icon = null
+//            imgLabel?.icon = imgIcon
             square.size = Dimension(e!!.x-dragStartX, e!!.y-dragStartY)
             grForLabel2d?.draw(square)
             inDrawingRect = false
         }
     }
-//    imgLabel?.addMouseListener(a)
-//    imgIcon?.addMouseListener(a)
+
     val cropBtn = JButton("cropImage")
     val openBtn = JButton("Open tiff")
     openBtn.addActionListener {
@@ -136,15 +130,21 @@ fun main(){
             image = ImageIO.read(file)
             println("file is read")
             println("img width = ${image?.width}  height = ${image?.height}")
-            imgIcon.image = image?.getScaledInstance(1400, -1, Image.SCALE_FAST)
+            val newWidth = image?.width!!
+            imageScale = image?.width!! / newWidth.toDouble()
+            imgIcon.image = image?.getScaledInstance(newWidth, -1, Image.SCALE_FAST)
+            println("img is scaled, scale = $imageScale")
             println("img width = ${image?.width}  height = ${image?.height}")
 //    ImageIO.write(outputImage, formatName, new File(outputImagePath));
-            println("img is scaled")
-            imgLabel = JLabel(imgIcon)
+            if (imgLabel!=null)
+                myFrame.remove(imgLabel)
+            imgLabel = JLabel(imgIcon, JLabel.LEADING)
+            imgLabel?.verticalAlignment = JLabel.TOP
+            imgLabel!!.border = BorderFactory.createLineBorder(Color.BLUE, 5)
             imgLabel!!.addMouseListener(a)
             imgLabel?.addMouseMotionListener(a)
             println("label is made")
-            myFrame.add(JScrollPane(imgLabel), BorderLayout.CENTER)
+            myFrame.add(imgLabel, BorderLayout.CENTER)
             println("label is added to frame")
             myFrame.validate()
         }
@@ -153,8 +153,9 @@ fun main(){
     southBox.add(Box.createHorizontalGlue())
     val zoomPlusBtn = JButton("zoom +")
     zoomPlusBtn.addActionListener {
+        imageScale = image?.width!! / (imgIcon.iconWidth.toDouble()+100)
         imgIcon.image = image?.getScaledInstance(imgIcon.iconWidth+100, -1, Image.SCALE_FAST)
-        println("img is scaled")
+        println("img is scaled, scale = $imageScale")
         imgLabel?.icon = null
         imgLabel?.icon = imgIcon
         myFrame.validate()
@@ -164,8 +165,9 @@ fun main(){
     southBox.add(Box.createHorizontalGlue())
     val zoomMinusBtn = JButton("zoom -")
     zoomMinusBtn.addActionListener {
+        imageScale = image?.width!! / (imgIcon.iconWidth.toDouble()-100)
         imgIcon.image = image?.getScaledInstance(imgIcon.iconWidth-100, -1, Image.SCALE_FAST)
-        println("img is scaled")
+        println("img is scaled, scale = $imageScale")
         imgLabel?.icon = null
         imgLabel?.icon = imgIcon
         myFrame.validate()
@@ -174,8 +176,10 @@ fun main(){
     southBox.add(zoomMinusBtn)
     southBox.add(Box.createHorizontalGlue())
     cropBtn.addActionListener {
-//        todo make crop for image
-
+        val image = cropImage(image as BufferedImage, square.x, square.y, square.width, square.height)
+        imgIcon.image = image
+        imgLabel?.icon = null
+        imgLabel?.icon = imgIcon
     }
     cropBtn.isEnabled = false
     southBox.add(cropBtn)
@@ -194,4 +198,9 @@ fun readTiffFromFile(myFrame: JFrame): File {
     val fileName = fileDialog.directory+fileDialog.file //получаем из него файл с полным путем
     println(fileName)
     return File(fileName)
+}
+
+fun cropImage(originalImgage: BufferedImage, x: Int, y: Int, w: Int, h: Int): BufferedImage? {
+    //todo при кропе проверять scale и менять параметры выреза
+    return originalImgage.getSubimage(x, y, w, h)
 }
